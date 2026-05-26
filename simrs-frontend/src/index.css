@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* Kustomisasi variabel warna SIMRS Dummy/SIMRS */
+@theme {
+  --color-primary: #10b981; /* Emerald 500 */
+  --color-primary-dark: #059669; /* Emerald 600 */
+  --color-secondary: #3b82f6; /* Blue 500 */
+}
+
+@layer base {
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: 'Inter', sans-serif;
+  }
+}

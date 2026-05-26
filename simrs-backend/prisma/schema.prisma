@@ -1,0 +1,1072 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model pegawai {
+  id             Int                @id @default(autoincrement())
+  nik            String             @unique(map: "nik") @db.VarChar(20)
+  nama           String             @db.VarChar(50)
+  jk             pegawai_jk
+  jbtn           String             @db.VarChar(25)
+  jnj_jabatan    String             @db.VarChar(5)
+  kode_kelompok  String             @db.VarChar(3)
+  kode_resiko    String             @db.VarChar(3)
+  kode_emergency String             @db.VarChar(3)
+  departemen     String             @db.VarChar(4)
+  bidang         String             @db.VarChar(15)
+  stts_wp        String             @db.VarChar(5)
+  stts_kerja     String             @db.VarChar(3)
+  npwp           String             @db.VarChar(15)
+  pendidikan     String             @db.VarChar(80)
+  gapok          Float
+  tmp_lahir      String             @db.VarChar(20)
+  tgl_lahir      DateTime           @db.Date
+  alamat         String             @db.VarChar(60)
+  kota           String             @db.VarChar(20)
+  mulai_kerja    DateTime           @db.Date
+  ms_kerja       pegawai_ms_kerja
+  indexins       String             @db.VarChar(4)
+  bpd            String             @db.VarChar(50)
+  rekening       String             @db.VarChar(25)
+  stts_aktif     pegawai_stts_aktif
+  wajibmasuk     Int                @db.TinyInt
+  pengurang      Float
+  indek          Int                @db.TinyInt
+  mulai_kontrak  DateTime?          @db.Date
+  cuti_diambil   Int
+  dankes         Float
+  photo          String?            @db.VarChar(500)
+  no_ktp         String             @db.VarChar(20)
+
+  user user?
+
+  pemeriksaan_ralan pemeriksaan_ralan[]
+  pemeriksaan_ranap pemeriksaan_ranap[]
+}
+
+model user {
+  id_user  String @id @db.VarChar(700)
+  password String @db.Text
+
+  pegawai pegawai @relation(fields: [id_user], references: [nik], onUpdate: Restrict, map: "user_ibfk_1")
+}
+
+model admin {
+  usere     String @id @db.VarChar(50) // Assuming usere is unique/primary key for admin
+  passworde String @db.Text
+}
+
+enum pegawai_jk {
+  Pria
+  Wanita
+}
+
+enum pegawai_ms_kerja {
+  LT_1    @map("<1")
+  PT
+  FT_GT_1 @map("FT>1")
+}
+
+enum pegawai_stts_aktif {
+  AKTIF
+  CUTI
+  KELUAR
+  TENAGA_LUAR @map("TENAGA LUAR")
+  NON_AKTIF   @map("NON AKTIF")
+}
+
+model pasien {
+  no_rkm_medis String    @id @db.VarChar(15)
+  nm_pasien    String?   @db.VarChar(40)
+  no_ktp       String?   @db.VarChar(20)
+  tmp_lahir    String?   @db.VarChar(15)
+  tgl_lahir    DateTime? @db.Date
+  nm_ibu       String    @db.VarChar(40)
+  alamat       String?   @db.VarChar(200)
+  pekerjaan    String?   @db.VarChar(60)
+  agama        String?   @db.VarChar(12)
+  tgl_daftar   DateTime? @db.Date
+  no_tlp       String?   @db.VarChar(40)
+  umur         String    @db.VarChar(30)
+  kd_pj        String    @db.Char(3)
+  no_peserta   String?   @db.VarChar(25)
+
+  penjab     penjab        @relation(fields: [kd_pj], references: [kd_pj])
+  registrasi reg_periksa[]
+}
+
+model penjab {
+  kd_pj           String        @id @db.Char(3)
+  png_jawab       String        @db.VarChar(30)
+  nama_perusahaan String        @db.VarChar(60)
+  alamat_asuransi String        @db.VarChar(130)
+  no_telp         String        @db.VarChar(40)
+  status          penjab_status
+
+  pasien     pasien[]
+  registrasi reg_periksa[]
+  jns_perawatan_lab jns_perawatan_lab[]
+}
+
+model poliklinik {
+  kd_poli String @id @db.Char(5)
+  nm_poli String @db.VarChar(50)
+
+  registrasi reg_periksa[]
+}
+
+model dokter {
+  kd_dokter String @id @db.VarChar(20)
+  nm_dokter String @db.VarChar(50)
+
+  registrasi  reg_periksa[]
+  rawat_jl_dr rawat_jl_dr[] @relation("rawat_jl_dr_dokter")
+  resep_obat  resep_obat[]
+  periksa_lab_perujuk periksa_lab[] @relation("periksa_lab_dokter_perujuk")
+  periksa_lab         periksa_lab[] @relation("periksa_lab_dokter")
+}
+
+model reg_periksa {
+  no_reg         String                    @db.VarChar(8)
+  no_rawat       String                    @id @db.VarChar(17)
+  tgl_registrasi DateTime                  @db.Date
+  jam_reg        DateTime                  @db.Time
+  kd_dokter      String                    @db.VarChar(20)
+  no_rkm_medis   String                    @db.VarChar(15)
+  kd_poli        String                    @db.VarChar(5)
+  p_jawab        String                    @db.VarChar(100)
+  almt_pj        String                    @db.VarChar(200)
+  hubunganpj     String                    @db.VarChar(20)
+  biaya_reg      Float                     @default(0)
+  stts           reg_periksa_stts
+  stts_daftar    reg_periksa_stts_daftar
+  status_lanjut  reg_periksa_status_lanjut
+  kd_pj          String                    @db.VarChar(3)
+  umurdaftar     Int                       @default(0)
+  sttsumur       reg_periksa_sttsumur
+  status_bayar   reg_periksa_status_bayar
+  status_poli    reg_periksa_status_poli
+
+  pasien               pasien                  @relation(fields: [no_rkm_medis], references: [no_rkm_medis])
+  poliklinik           poliklinik              @relation(fields: [kd_poli], references: [kd_poli])
+  dokter               dokter                  @relation(fields: [kd_dokter], references: [kd_dokter])
+  penjab               penjab                  @relation(fields: [kd_pj], references: [kd_pj])
+  kamar_inap           kamar_inap[]
+  pemeriksaan_ralan    pemeriksaan_ralan[]
+  pemeriksaan_ranap    pemeriksaan_ranap[]
+  diagnosa_pasien      diagnosa_pasien[]
+  rawat_jl_dr          rawat_jl_dr[]
+  resep_obat           resep_obat[]
+  detailPemberianObats detail_pemberian_obat[]
+  notaJalans           nota_jalan[]
+  bridging_sep         bridging_sep[]
+  periksa_lab          periksa_lab[]
+  detail_periksa_lab   detail_periksa_lab[]
+  operasi              operasi[]
+}
+
+model bangsal {
+  kd_bangsal String  @id @db.Char(5)
+  nm_bangsal String? @db.VarChar(30)
+  status     String? @db.VarChar(1)
+
+  kamar              kamar[]
+  riwayatBarangMedis riwayat_barang_medis[]
+}
+
+model kamar {
+  kd_kamar   String  @id @db.VarChar(15)
+  kd_bangsal String? @db.Char(5)
+  trf_kamar  Float?
+  status     String? @db.VarChar(20)
+  kelas      String? @db.VarChar(15)
+  statusdata String? @db.VarChar(1)
+
+  bangsal    bangsal?     @relation(fields: [kd_bangsal], references: [kd_bangsal])
+  kamar_inap kamar_inap[]
+}
+
+model kamar_inap {
+  no_rawat       String    @db.VarChar(17)
+  kd_kamar       String    @db.VarChar(15)
+  trf_kamar      Float?
+  diagnosa_awal  String?   @db.VarChar(100)
+  diagnosa_akhir String?   @db.VarChar(100)
+  tgl_masuk      DateTime  @db.Date
+  jam_masuk      DateTime  @db.Time
+  tgl_keluar     DateTime? @db.Date
+  jam_keluar     DateTime? @db.Time
+  lama           Float?
+  ttl_biaya      Float?
+  stts_pulang    String    @db.VarChar(25)
+
+  reg_periksa reg_periksa @relation(fields: [no_rawat], references: [no_rawat])
+  kamar       kamar       @relation(fields: [kd_kamar], references: [kd_kamar])
+
+  @@id([no_rawat, tgl_masuk, jam_masuk])
+}
+
+// =============================================
+// MODUL 3: Rekam Medis Elektronik (RME / CPPT)
+// =============================================
+
+model penyakit {
+  kd_penyakit String  @id @db.VarChar(15)
+  nm_penyakit String? @db.VarChar(250)
+  ciri_ciri   String? @db.Text
+  keterangan  String? @db.VarChar(60)
+  status      String  @db.VarChar(20) // 'Menular', 'Tidak Menular'
+
+  diagnosa_pasien diagnosa_pasien[]
+}
+
+model pemeriksaan_ralan {
+  no_rawat      String   @db.VarChar(17)
+  tgl_perawatan DateTime @db.Date
+  jam_rawat     DateTime @db.Time
+  suhu_tubuh    String?  @db.VarChar(5)
+  tensi         String   @db.VarChar(8)
+  nadi          String?  @db.VarChar(3)
+  respirasi     String?  @db.VarChar(3)
+  tinggi        String?  @db.VarChar(5)
+  berat         String?  @db.VarChar(5)
+  spo2          String   @db.VarChar(3)
+  gcs           String?  @db.VarChar(10)
+  kesadaran     String   @db.VarChar(20)
+  keluhan       String?  @db.VarChar(2000)
+  pemeriksaan   String?  @db.VarChar(2000)
+  alergi        String?  @db.VarChar(80)
+  lingkar_perut String?  @db.VarChar(5)
+  rtl           String   @db.VarChar(2000)
+  penilaian     String   @db.VarChar(2000)
+  instruksi     String   @db.VarChar(2000)
+  evaluasi      String   @db.VarChar(2000)
+  nip           String   @db.VarChar(20)
+
+  reg_periksa reg_periksa @relation(fields: [no_rawat], references: [no_rawat])
+  pegawai     pegawai     @relation(fields: [nip], references: [nik])
+
+  @@id([no_rawat, tgl_perawatan, jam_rawat])
+}
+
+model pemeriksaan_ranap {
+  no_rawat      String   @db.VarChar(17)
+  tgl_perawatan DateTime @db.Date
+  jam_rawat     DateTime @db.Time
+  suhu_tubuh    String?  @db.VarChar(5)
+  tensi         String   @db.VarChar(8)
+  nadi          String?  @db.VarChar(3)
+  respirasi     String?  @db.VarChar(3)
+  tinggi        String?  @db.VarChar(5)
+  berat         String?  @db.VarChar(5)
+  spo2          String   @db.VarChar(3)
+  gcs           String?  @db.VarChar(10)
+  kesadaran     String   @db.VarChar(20)
+  keluhan       String?  @db.VarChar(2000)
+  pemeriksaan   String?  @db.VarChar(2000)
+  alergi        String?  @db.VarChar(80)
+  penilaian     String   @db.VarChar(2000)
+  rtl           String   @db.VarChar(2000)
+  instruksi     String   @db.VarChar(2000)
+  evaluasi      String   @db.VarChar(2000)
+  nip           String   @db.VarChar(20)
+
+  reg_periksa reg_periksa @relation(fields: [no_rawat], references: [no_rawat])
+  pegawai     pegawai     @relation(fields: [nip], references: [nik])
+
+  @@id([no_rawat, tgl_perawatan, jam_rawat])
+}
+
+model diagnosa_pasien {
+  no_rawat        String  @db.VarChar(17)
+  kd_penyakit     String  @db.VarChar(15)
+  status          String  @db.VarChar(5) // 'Ralan', 'Ranap'
+  prioritas       Int     @db.TinyInt
+  status_penyakit String? @db.VarChar(4) // 'Lama', 'Baru'
+
+  reg_periksa reg_periksa @relation(fields: [no_rawat], references: [no_rawat])
+  penyakit    penyakit    @relation(fields: [kd_penyakit], references: [kd_penyakit])
+
+  @@id([no_rawat, kd_penyakit, status])
+}
+
+model jns_perawatan {
+  kd_jenis_prw     String  @id @db.VarChar(15)
+  nm_perawatan     String? @db.VarChar(80)
+  material         Float?
+  bhp              Float
+  tarif_tindakandr Float?
+  tarif_tindakanpr Float?
+  kso              Float?
+  menejemen        Float?
+  total_byrdr      Float?
+  total_byrpr      Float?
+  total_byrdrpr    Float
+  kd_pj            String  @db.Char(3)
+  kd_poli          String  @db.Char(5)
+  status           String  @db.VarChar(1) // '0', '1'
+
+  rawat_jl_dr rawat_jl_dr[]
+}
+
+model rawat_jl_dr {
+  no_rawat         String                  @db.VarChar(17)
+  kd_jenis_prw     String                  @db.VarChar(15)
+  kd_dokter        String                  @db.VarChar(20)
+  tgl_perawatan    DateTime                @db.Date
+  jam_rawat        DateTime                @db.Time
+  material         Float
+  bhp              Float
+  tarif_tindakandr Float
+  kso              Float?
+  menejemen        Float?
+  biaya_rawat      Float?
+  stts_bayar       rawat_jl_dr_stts_bayar?
+
+  reg_periksa   reg_periksa   @relation(fields: [no_rawat], references: [no_rawat])
+  jns_perawatan jns_perawatan @relation(fields: [kd_jenis_prw], references: [kd_jenis_prw])
+  dokter        dokter        @relation("rawat_jl_dr_dokter", fields: [kd_dokter], references: [kd_dokter])
+
+  @@id([no_rawat, kd_jenis_prw, kd_dokter, tgl_perawatan, jam_rawat])
+}
+
+model databarang {
+  kode_brng String  @id @db.VarChar(15)
+  nama_brng String? @db.VarChar(80)
+  ralan     Float?  @db.Double
+  status    String  @db.VarChar(1)
+
+  gudangbarang                gudangbarang[]
+  resep_dokter                resep_dokter[]
+  resep_dokter_racikan_detail resep_dokter_racikan_detail[]
+  riwayatBarangMedis          riwayat_barang_medis[]
+}
+
+model gudangbarang {
+  kode_brng  String @db.VarChar(15)
+  kd_bangsal String @db.Char(5)
+  stok       Float  @db.Double
+  no_batch   String @db.VarChar(20)
+  no_faktur  String @db.VarChar(20)
+
+  databarang databarang @relation(fields: [kode_brng], references: [kode_brng])
+
+  @@id([kode_brng, kd_bangsal, no_batch, no_faktur])
+}
+
+model resep_obat {
+  no_resep       String    @id @db.VarChar(14)
+  tgl_perawatan  DateTime? @db.Date
+  jam            DateTime  @db.Time
+  no_rawat       String    @db.VarChar(17)
+  kd_dokter      String    @db.VarChar(20)
+  tgl_peresepan  DateTime? @db.Date
+  jam_peresepan  DateTime? @db.Time
+  status         String?   @db.VarChar(5)
+  tgl_penyerahan DateTime  @db.Date
+  jam_penyerahan DateTime  @db.Time
+
+  reg_periksa          reg_periksa            @relation(fields: [no_rawat], references: [no_rawat])
+  dokter               dokter                 @relation(fields: [kd_dokter], references: [kd_dokter])
+  resep_dokter         resep_dokter[]
+  resep_dokter_racikan resep_dokter_racikan[]
+}
+
+model resep_dokter {
+  no_resep     String  @db.VarChar(14)
+  kode_brng    String  @db.VarChar(15)
+  jml          Float?  @db.Double
+  aturan_pakai String? @db.VarChar(150)
+
+  resep_obat resep_obat @relation(fields: [no_resep], references: [no_resep])
+  databarang databarang @relation(fields: [kode_brng], references: [kode_brng])
+
+  @@id([no_resep, kode_brng])
+}
+
+model metode_racik {
+  kd_racik String @id @db.VarChar(3)
+  nm_racik String @db.VarChar(30)
+
+  resep_dokter_racikan resep_dokter_racikan[]
+}
+
+model resep_dokter_racikan {
+  no_resep     String @db.VarChar(14)
+  no_racik     String @db.VarChar(2)
+  nama_racik   String @db.VarChar(100)
+  kd_racik     String @db.VarChar(3)
+  jml_dr       Int    @db.Int
+  aturan_pakai String @db.VarChar(150)
+  keterangan   String @db.VarChar(50)
+
+  resep_obat   resep_obat   @relation(fields: [no_resep], references: [no_resep])
+  metode_racik metode_racik @relation(fields: [kd_racik], references: [kd_racik])
+
+  resep_dokter_racikan_detail resep_dokter_racikan_detail[]
+
+  @@id([no_resep, no_racik])
+}
+
+model resep_dokter_racikan_detail {
+  no_resep  String  @db.VarChar(14)
+  no_racik  String  @db.VarChar(2)
+  kode_brng String  @db.VarChar(15)
+  p1        Float?  @db.Double
+  p2        Float?  @db.Double
+  kandungan String? @db.VarChar(10)
+  jml       Float?  @db.Double
+
+  resep_dokter_racikan resep_dokter_racikan @relation(fields: [no_resep, no_racik], references: [no_resep, no_racik])
+  databarang           databarang           @relation(fields: [kode_brng], references: [kode_brng])
+
+  @@id([no_resep, no_racik, kode_brng])
+}
+
+model detail_pemberian_obat {
+  tgl_perawatan DateTime @db.Date
+  jam           DateTime @db.Time
+  no_rawat      String   @db.VarChar(17)
+  kode_brng     String   @db.VarChar(15)
+  h_beli        Float?   @db.Double
+  biaya_obat    Float?   @db.Double
+  jml           Float    @db.Double
+  embalase      Float?   @db.Double
+  tuslah        Float?   @db.Double
+  total         Float    @db.Double
+  status        String?  @db.VarChar(10)
+  kd_bangsal    String?  @db.VarChar(5)
+  no_batch      String   @db.VarChar(20)
+  no_faktur     String   @db.VarChar(20)
+
+  reg_periksa reg_periksa @relation(fields: [no_rawat], references: [no_rawat])
+
+  @@id([tgl_perawatan, jam, no_rawat, kode_brng, no_batch, no_faktur])
+}
+
+model nota_jalan {
+  no_rawat String    @id @db.VarChar(17)
+  no_nota  String?   @unique @db.VarChar(17)
+  tanggal  DateTime? @db.Date
+  jam      DateTime? @db.Time
+
+  reg_periksa reg_periksa @relation(fields: [no_rawat], references: [no_rawat])
+}
+
+enum penjab_status {
+  STATUS_0 @map("0")
+  STATUS_1 @map("1")
+}
+
+enum reg_periksa_stts {
+  Belum
+  Sudah
+  Batal
+  Berkas_Diterima @map("Berkas Diterima")
+  Dirujuk
+  Meninggal
+  Dirawat
+  Pulang_Paksa    @map("Pulang Paksa")
+}
+
+enum reg_periksa_stts_daftar {
+  STRIP @map("-")
+  Lama
+  Baru
+}
+
+enum reg_periksa_status_lanjut {
+  Ralan
+  Ranap
+}
+
+enum reg_periksa_sttsumur {
+  Th
+  Bl
+  Hr
+}
+
+enum reg_periksa_status_bayar {
+  Sudah_Bayar @map("Sudah Bayar")
+  Belum_Bayar @map("Belum Bayar")
+}
+
+enum reg_periksa_status_poli {
+  Lama
+  Baru
+}
+
+// =============================================
+// MODUL 5 & 4: Akuntansi & Mutasi Stok (Tech Debt Resolution Phase 1)
+// =============================================
+
+model rekening {
+  kd_rek  String  @id @db.VarChar(15)
+  nm_rek  String? @db.VarChar(100)
+  tipe    String? @db.VarChar(1) // 'N','M','R'
+  balance String? @db.VarChar(1) // 'D','K'
+  level   String? @db.VarChar(1) // '0','1'
+
+  detailjurnal detailjurnal[]
+}
+
+model jurnal {
+  no_jurnal  String   @id @db.VarChar(20)
+  no_bukti   String   @db.VarChar(30)
+  tgl_jurnal DateTime @db.Date
+  jam_jurnal DateTime @db.Time
+  jenis      String   @db.VarChar(1) // 'U','P'
+  keterangan String   @db.VarChar(350)
+
+  detailjurnal detailjurnal[]
+}
+
+model detailjurnal {
+  no_jurnal String @db.VarChar(20)
+  kd_rek    String @db.VarChar(15)
+  debet     Float  @db.Double
+  kredit    Float  @db.Double
+
+  jurnal   jurnal   @relation(fields: [no_jurnal], references: [no_jurnal])
+  rekening rekening @relation(fields: [kd_rek], references: [kd_rek])
+
+  @@id([no_jurnal, kd_rek])
+}
+
+model riwayat_barang_medis {
+  kode_brng  String   @db.VarChar(15)
+  stok_awal  Float?   @db.Double
+  masuk      Float?   @db.Double
+  keluar     Float?   @db.Double
+  stok_akhir Float    @db.Double
+  posisi     String?  @db.VarChar(50)
+  tanggal    DateTime @db.Date
+  jam        DateTime @db.Time
+  petugas    String?  @db.VarChar(20)
+  kd_bangsal String?  @db.VarChar(5)
+  status     String?  @db.VarChar(10)
+  no_batch   String   @db.VarChar(20)
+  no_faktur  String   @db.VarChar(20)
+  keterangan String   @db.VarChar(150)
+
+  databarang databarang @relation(fields: [kode_brng], references: [kode_brng])
+  bangsal    bangsal?   @relation(fields: [kd_bangsal], references: [kd_bangsal])
+
+  @@id([kode_brng, tanggal, jam, no_batch, no_faktur])
+}
+
+model set_embalase {
+  embalase_per_obat Float  @id @db.Double
+  tuslah_per_obat   Float? @db.Double
+}
+
+enum pasien_jk {
+  L
+  P
+}
+
+enum rawat_jl_dr_stts_bayar {
+  Sudah
+  Belum
+  Suspen
+}
+
+model bridging_sep {
+  no_sep            String                        @id @default("") @db.VarChar(40)
+  no_rawat          String?                       @db.VarChar(17)
+  tglsep            DateTime?                     @db.Date
+  tglrujukan        DateTime?                     @db.Date
+  no_rujukan        String?                       @db.VarChar(40)
+  kdppkrujukan      String?                       @db.VarChar(12)
+  nmppkrujukan      String?                       @db.VarChar(200)
+  kdppkpelayanan    String?                       @db.VarChar(12)
+  nmppkpelayanan    String?                       @db.VarChar(200)
+  jnspelayanan      bridging_sep_jnspelayanan?
+  catatan           String?                       @db.VarChar(100)
+  diagawal          String?                       @db.VarChar(10)
+  nmdiagnosaawal    String?                       @db.VarChar(400)
+  kdpolitujuan      String?                       @db.VarChar(15)
+  nmpolitujuan      String?                       @db.VarChar(50)
+  klsrawat          bridging_sep_klsrawat?
+  klsnaik           bridging_sep_klsnaik
+  pembiayaan        bridging_sep_pembiayaan
+  pjnaikkelas       String                        @db.VarChar(100)
+  lakalantas        bridging_sep_lakalantas?
+  user              String?                       @db.VarChar(25)
+  nomr              String?                       @db.VarChar(15)
+  nama_pasien       String?                       @db.VarChar(100)
+  tanggal_lahir     DateTime?                     @db.Date
+  peserta           String?                       @db.VarChar(100)
+  jkel              bridging_sep_jkel?
+  no_kartu          String?                       @db.VarChar(25)
+  tglpulang         DateTime?                     @db.DateTime(0)
+  asal_rujukan      bridging_sep_asal_rujukan
+  eksekutif         bridging_sep_eksekutif
+  cob               bridging_sep_cob
+  notelep           String                        @db.VarChar(40)
+  katarak           bridging_sep_katarak
+  tglkkl            DateTime                      @db.Date
+  keterangankkl     String                        @db.VarChar(100)
+  suplesi           bridging_sep_suplesi
+  no_sep_suplesi    String                        @db.VarChar(40)
+  kdprop            String                        @db.VarChar(10)
+  nmprop            String                        @db.VarChar(50)
+  kdkab             String                        @db.VarChar(10)
+  nmkab             String                        @db.VarChar(50)
+  kdkec             String                        @db.VarChar(10)
+  nmkec             String                        @db.VarChar(50)
+  noskdp            String                        @db.VarChar(40)
+  kddpjp            String                        @db.VarChar(10)
+  nmdpdjp           String                        @db.VarChar(100)
+  tujuankunjungan   bridging_sep_tujuankunjungan
+  flagprosedur      bridging_sep_flagprosedur
+  penunjang         bridging_sep_penunjang
+  asesmenpelayanan  bridging_sep_asesmenpelayanan
+  kddpjplayanan     String                        @db.VarChar(10)
+  nmdpjplayanan     String                        @db.VarChar(100)
+  reg_periksa       reg_periksa?                  @relation(fields: [no_rawat], references: [no_rawat], onDelete: Restrict, map: "bridging_sep_ibfk_1")
+  inacbg_klaim_baru inacbg_klaim_baru?
+
+  @@index([no_rawat], map: "no_rawat")
+}
+
+model inacbg_klaim_baru {
+  no_sep                String       @id @default("") @db.VarChar(40)
+  patient_id            String?      @db.VarChar(30)
+  admission_id          String?      @db.VarChar(30)
+  hospital_admission_id String?      @db.VarChar(30)
+  bridging_sep          bridging_sep @relation(fields: [no_sep], references: [no_sep], onDelete: Cascade, map: "inacbg_klaim_baru_ibfk_1")
+}
+
+enum bridging_sep_klsrawat {
+  VAL_1 @map("1")
+  VAL_2 @map("2")
+  VAL_3 @map("3")
+}
+
+enum bridging_sep_lakalantas {
+  VAL_0 @map("0")
+  VAL_1 @map("1")
+  VAL_2 @map("2")
+  VAL_3 @map("3")
+}
+
+enum penyakit_status {
+  Menular
+  Tidak_Menular @map("Tidak Menular")
+}
+
+enum diagnosa_pasien_status_penyakit {
+  Lama
+  Baru
+}
+
+enum bridging_sep_asesmenpelayanan {
+  EMPTY_ENUM_VALUE @map("")
+  VAL_1            @map("1")
+  VAL_2            @map("2")
+  VAL_3            @map("3")
+  VAL_4            @map("4")
+  VAL_5            @map("5")
+}
+
+enum bridging_sep_pembiayaan {
+  EMPTY_ENUM_VALUE @map("")
+  VAL_1            @map("1")
+  VAL_2            @map("2")
+  VAL_3            @map("3")
+}
+
+enum bridging_sep_asal_rujukan {
+  Faskes_1     @map("1. Faskes 1")
+  Faskes_2_RS_ @map("2. Faskes 2(RS)")
+}
+
+enum bridging_sep_tujuankunjungan {
+  VAL_0 @map("0")
+  VAL_1 @map("1")
+  VAL_2 @map("2")
+}
+
+enum bridging_sep_katarak {
+  Tidak @map("0. Tidak")
+  Ya    @map("1.Ya")
+}
+
+enum bridging_sep_cob {
+  Tidak @map("0. Tidak")
+  Ya    @map("1.Ya")
+}
+
+enum bridging_sep_klsnaik {
+  EMPTY_ENUM_VALUE @map("")
+  VAL_1            @map("1")
+  VAL_2            @map("2")
+  VAL_3            @map("3")
+  VAL_4            @map("4")
+  VAL_5            @map("5")
+  VAL_6            @map("6")
+  VAL_7            @map("7")
+  VAL_8            @map("8")
+}
+
+enum penyakit_validcode {
+  VAL_0 @map("0")
+  VAL_1 @map("1")
+}
+
+enum bridging_sep_jkel {
+  L
+  P
+}
+
+enum bridging_sep_penunjang {
+  EMPTY_ENUM_VALUE @map("")
+  VAL_1            @map("1")
+  VAL_2            @map("2")
+  VAL_3            @map("3")
+  VAL_4            @map("4")
+  VAL_5            @map("5")
+  VAL_6            @map("6")
+  VAL_7            @map("7")
+  VAL_8            @map("8")
+  VAL_9            @map("9")
+  VAL_10           @map("10")
+  VAL_11           @map("11")
+  VAL_12           @map("12")
+}
+
+enum diagnosa_pasien_status {
+  Ralan
+  Ranap
+}
+
+enum bridging_sep_eksekutif {
+  Tidak @map("0. Tidak")
+  Ya    @map("1.Ya")
+}
+
+enum penyakit_im {
+  VAL_0 @map("0")
+  VAL_1 @map("1")
+}
+
+enum bridging_sep_jnspelayanan {
+  VAL_1 @map("1")
+  VAL_2 @map("2")
+}
+
+enum penyakit_accpdx {
+  Y
+  N
+}
+
+enum bridging_sep_flagprosedur {
+  EMPTY_ENUM_VALUE @map("")
+  VAL_0            @map("0")
+  VAL_1            @map("1")
+}
+
+enum penyakit_asterisk {
+  VAL_0 @map("0")
+  VAL_1 @map("1")
+}
+
+enum bridging_sep_suplesi {
+  Tidak @map("0. Tidak")
+  Ya    @map("1.Ya")
+}
+
+// =============================================
+// MODUL 6: Penunjang Medis (Laboratorium)
+// =============================================
+
+model petugas {
+  nip           String    @id @db.VarChar(20)
+  nama          String?   @db.VarChar(50)
+  jk            petugas_jk?
+  tmp_lahir     String?   @db.VarChar(20)
+  tgl_lahir     DateTime? @db.Date
+  gol_darah     petugas_gol_darah?
+  agama         String?   @db.VarChar(12)
+  stts_nikah    petugas_stts_nikah?
+  alamat        String?   @db.VarChar(60)
+
+  periksa_lab   periksa_lab[]
+}
+
+enum petugas_jk {
+  Pria
+  Wanita
+}
+enum petugas_gol_darah {
+  A
+  B
+  O
+  AB
+  STRIP @map("-")
+}
+enum petugas_stts_nikah {
+  BELUM_MENIKAH @map("BELUM MENIKAH")
+  MENIKAH
+  JANDA
+  DUDHA
+  STRIP @map("-")
+}
+
+model jns_perawatan_lab {
+  kd_jenis_prw          String @id @db.VarChar(15)
+  nm_perawatan          String? @db.VarChar(80)
+  bagian_rs             Float?
+  bhp                   Float
+  tarif_perujuk         Float
+  tarif_tindakan_dokter Float
+  tarif_tindakan_petugas Float?
+  kso                   Float?
+  menejemen             Float?
+  total_byr             Float?
+  kd_pj                 String @db.Char(3)
+  status                String @db.VarChar(1) // '0','1'
+  kelas                 String @db.VarChar(15) // '-', 'Kelas 1', etc
+  kategori              String @db.VarChar(5) // 'PK', 'PA', 'MB'
+
+  penjab                penjab @relation(fields: [kd_pj], references: [kd_pj])
+  periksa_lab           periksa_lab[]
+  detail_periksa_lab    detail_periksa_lab[]
+}
+
+model template_laboratorium {
+  kd_jenis_prw          String @db.VarChar(15)
+  id_template           Int @id @default(autoincrement())
+  Pemeriksaan           String @db.VarChar(200)
+  satuan                String @db.VarChar(20)
+  nilai_rujukan_ld      String @db.VarChar(30)
+  nilai_rujukan_la      String @db.VarChar(30)
+  nilai_rujukan_pd      String @db.VarChar(30)
+  nilai_rujukan_pa      String @db.VarChar(30)
+  bagian_rs             Float
+  bhp                   Float
+  bagian_perujuk        Float
+  bagian_dokter         Float
+  bagian_laborat        Float
+  kso                   Float?
+  menejemen             Float?
+  biaya_item            Float
+  urut                  Int?
+
+  detail_periksa_lab    detail_periksa_lab[]
+}
+
+model periksa_lab {
+  no_rawat              String @db.VarChar(17)
+  nip                   String @db.VarChar(20)
+  kd_jenis_prw          String @db.VarChar(15)
+  tgl_periksa           DateTime @db.Date
+  jam                   DateTime @db.Time(0)
+  dokter_perujuk        String @db.VarChar(20)
+  bagian_rs             Float
+  bhp                   Float
+  tarif_perujuk         Float
+  tarif_tindakan_dokter Float
+  tarif_tindakan_petugas Float
+  kso                   Float?
+  menejemen             Float?
+  biaya                 Float
+  kd_dokter             String @db.VarChar(20)
+  status                String? @db.VarChar(15)
+  kategori              String @db.VarChar(5) // 'PK', 'PA', 'MB'
+
+  reg_periksa           reg_periksa @relation(fields: [no_rawat], references: [no_rawat])
+  petugas               petugas @relation(fields: [nip], references: [nip])
+  jns_perawatan_lab     jns_perawatan_lab @relation(fields: [kd_jenis_prw], references: [kd_jenis_prw])
+  dokter_perujuk_rel    dokter @relation("periksa_lab_dokter_perujuk", fields: [dokter_perujuk], references: [kd_dokter])
+  dokter_periksa_rel    dokter @relation("periksa_lab_dokter", fields: [kd_dokter], references: [kd_dokter])
+
+  @@id([no_rawat, kd_jenis_prw, tgl_periksa, jam])
+}
+
+model detail_periksa_lab {
+  no_rawat              String @db.VarChar(17)
+  kd_jenis_prw          String @db.VarChar(15)
+  tgl_periksa           DateTime @db.Date
+  jam                   DateTime @db.Time(0)
+  id_template           Int
+  nilai                 String @db.VarChar(200)
+  nilai_rujukan         String @db.VarChar(30)
+  keterangan            String @db.VarChar(60)
+  bagian_rs             Float
+  bhp                   Float
+  bagian_perujuk        Float
+  bagian_dokter         Float
+  bagian_laborat        Float
+  kso                   Float?
+  menejemen             Float?
+  biaya_item            Float
+
+  reg_periksa           reg_periksa @relation(fields: [no_rawat], references: [no_rawat])
+  jns_perawatan_lab     jns_perawatan_lab @relation(fields: [kd_jenis_prw], references: [kd_jenis_prw])
+  template_laboratorium template_laboratorium @relation(fields: [id_template], references: [id_template])
+
+  @@id([no_rawat, kd_jenis_prw, tgl_periksa, jam, id_template])
+}
+
+// =============================================
+// MODUL 7: Kamar Operasi (OK)
+// =============================================
+
+enum operasi_kategori {
+  // - @map("-")
+  Ringan
+  Ringan_Cito              @map("Ringan Cito")
+  Ringan_Khusus            @map("Ringan Khusus")
+  Ringan_Khusus_Cito       @map("Ringan Khusus Cito")
+  Ringan_Khusus_Cito_Ganda @map("Ringan Khusus Cito Ganda")
+  Sedang_Cito              @map("Sedang Cito")
+  Sedang_Khusus            @map("Sedang Khusus")
+}
+
+enum operasi_status {
+  Ranap
+  Ralan
+}
+
+enum paket_operasi_kategori {
+  Kebidanan
+  Operasi
+}
+
+enum paket_operasi_status {
+  STATUS_0 @map("0")
+  STATUS_1 @map("1")
+}
+
+enum paket_operasi_kelas {
+  // - @map("-")
+  Rawat_Jalan @map("Rawat Jalan")
+  Kelas_1     @map("Kelas 1")
+  Kelas_2     @map("Kelas 2")
+  Kelas_3     @map("Kelas 3")
+  Kelas_Utama @map("Kelas Utama")
+  Kelas_VIP   @map("Kelas VIP")
+  Kelas_VVIP  @map("Kelas VVIP")
+}
+
+model paket_operasi {
+  kode_paket                    String                          @id @db.VarChar(15)
+  nm_perawatan                  String                          @db.VarChar(80)
+  kategori                      paket_operasi_kategori?
+  operator1                     Float
+  operator2                     Float
+  operator3                     Float
+  asisten_operator1             Float?
+  asisten_operator2             Float
+  asisten_operator3             Float?
+  instrumen                     Float?
+  dokter_anak                   Float
+  perawaat_resusitas            Float
+  dokter_anestesi               Float
+  asisten_anestesi              Float
+  asisten_anestesi2             Float?
+  bidan                         Float
+  bidan2                        Float?
+  bidan3                        Float?
+  perawat_luar                  Float
+  sewa_ok                       Float
+  alat                          Float
+  akomodasi                     Float?
+  bagian_rs                     Float
+  omloop                        Float
+  omloop2                       Float?
+  omloop3                       Float?
+  omloop4                       Float?
+  omloop5                       Float?
+  sarpras                       Float?
+  dokter_pjanak                 Float?
+  dokter_umum                   Float?
+  kd_pj                         String?                         @db.Char(3)
+  status                        paket_operasi_status?
+  kelas                         paket_operasi_kelas?
+
+  operasi                       operasi[]
+}
+
+model operasi {
+  no_rawat                                    String            @db.VarChar(17)
+  tgl_operasi                                 DateTime          @db.DateTime(0)
+  jenis_anasthesi                             String            @db.VarChar(8)
+  kategori                                    operasi_kategori?
+  operator1                                   String            @db.VarChar(20)
+  operator2                                   String            @db.VarChar(20)
+  operator3                                   String            @db.VarChar(20)
+  asisten_operator1                           String            @db.VarChar(20)
+  asisten_operator2                           String            @db.VarChar(20)
+  asisten_operator3                           String?           @db.VarChar(20)
+  instrumen                                   String?           @db.VarChar(20)
+  dokter_anak                                 String            @db.VarChar(20)
+  perawaat_resusitas                          String            @db.VarChar(20)
+  dokter_anestesi                             String            @db.VarChar(20)
+  asisten_anestesi                            String            @db.VarChar(20)
+  asisten_anestesi2                           String?           @db.VarChar(20)
+  bidan                                       String            @db.VarChar(20)
+  bidan2                                      String?           @db.VarChar(20)
+  bidan3                                      String?           @db.VarChar(20)
+  perawat_luar                                String            @db.VarChar(20)
+  omloop                                      String?           @db.VarChar(20)
+  omloop2                                     String?           @db.VarChar(20)
+  omloop3                                     String?           @db.VarChar(20)
+  omloop4                                     String?           @db.VarChar(20)
+  omloop5                                     String?           @db.VarChar(20)
+  dokter_pjanak                               String?           @db.VarChar(20)
+  dokter_umum                                 String?           @db.VarChar(20)
+  kode_paket                                  String            @db.VarChar(15)
+  biayaoperator1                              Float
+  biayaoperator2                              Float
+  biayaoperator3                              Float
+  biayaasisten_operator1                      Float
+  biayaasisten_operator2                      Float
+  biayaasisten_operator3                      Float?
+  biayainstrumen                              Float?
+  biayadokter_anak                            Float
+  biayaperawaat_resusitas                     Float
+  biayadokter_anestesi                        Float
+  biayaasisten_anestesi                       Float
+  biayaasisten_anestesi2                      Float?
+  biayabidan                                  Float
+  biayabidan2                                 Float?
+  biayabidan3                                 Float?
+  biayaperawat_luar                           Float
+  biayaalat                                   Float
+  biayasewaok                                 Float
+  akomodasi                                   Float?
+  bagian_rs                                   Float
+  biaya_omloop                                Float?
+  biaya_omloop2                               Float?
+  biaya_omloop3                               Float?
+  biaya_omloop4                               Float?
+  biaya_omloop5                               Float?
+  biayasarpras                                Float?
+  biaya_dokter_pjanak                         Float?
+  biaya_dokter_umum                           Float?
+  status                                      operasi_status?
+
+  reg_periksa                                 reg_periksa       @relation(fields: [no_rawat], references: [no_rawat])
+  paket_operasi                               paket_operasi     @relation(fields: [kode_paket], references: [kode_paket])
+
+  @@id([no_rawat, tgl_operasi, kode_paket])
+}
+
+
+model simrs_web_sequence_tracker {
+  scope       String   @db.VarChar(50)
+  period_key  String   @db.VarChar(20)
+  last_number Int      @default(0)
+  updated_at  DateTime @updatedAt
+
+  @@id([scope, period_key])
+}
