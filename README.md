@@ -20,6 +20,7 @@ di atas database MariaDB `sik`.
 | Menjalankan aplikasi | [Mulai lokal](#mulai-lokal) |
 | Mengecek batasan aktual | [Status dan risiko](#status-dan-risiko) |
 | Membaca dokumen teknis | [Dokumentasi](#dokumentasi) |
+| Membaca referensi fitur | [Pustaka](Pustaka.md) |
 
 ## Gambaran Alur
 
@@ -267,7 +268,8 @@ Prioritas sebelum penggunaan nyata:
 
 Lihat [CURRENT_STATE.md](docs/CURRENT_STATE.md) dan
 [PRODUCTION_READINESS_CHECKLIST.md](docs/PRODUCTION_READINESS_CHECKLIST.md)
-untuk status teknis yang menjadi acuan.
+untuk status teknis yang menjadi acuan. Referensi pelengkap fitur nanti ada di
+[Pustaka.md](Pustaka.md).
 
 ## Dokumentasi
 
@@ -281,3 +283,4 @@ untuk status teknis yang menjadi acuan.
 | [Production Checklist](docs/PRODUCTION_READINESS_CHECKLIST.md) | Syarat sebelum penggunaan nyata |
 | [Rollback Plan](docs/ROLLBACK_PLAN.md) | Prosedur pemulihan |
 | [Security and Access Control](docs/SECURITY_AND_ACCESS_CONTROL.md) | Arah kontrol akses |
+| [Pustaka](Pustaka.md) | Referensi pelengkap fitur dan integrasi |
