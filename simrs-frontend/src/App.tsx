@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import MainLayout from './components/Layout/MainLayout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Registration from './pages/Registration';
@@ -18,18 +19,21 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/monitoring" element={<DataMonitoring />} />
-        <Route path="/registration" element={<Registration />} />
-        <Route path="/queues" element={<QueueDisplay />} />
-        <Route path="/beds" element={<BedManagement />} />
-        <Route path="/rme" element={<MedicalRecord />} />
-        <Route path="/farmasi" element={<Farmasi />} />
-        <Route path="/apotek" element={<Apotek />} />
-        <Route path="/lab" element={<Laboratorium />} />
-        <Route path="/kasir" element={<Kasir />} />
-        <Route path="/ranap-cppt" element={<RanapCPPT />} />
-        <Route path="/operasi" element={<Operasi />} />
+        
+        {/* Protected Routes wrapped in MainLayout */}
+        <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
+        <Route path="/monitoring" element={<MainLayout><DataMonitoring /></MainLayout>} />
+        <Route path="/registration" element={<MainLayout><Registration /></MainLayout>} />
+        <Route path="/queues" element={<MainLayout><QueueDisplay /></MainLayout>} />
+        <Route path="/beds" element={<MainLayout><BedManagement /></MainLayout>} />
+        <Route path="/rme" element={<MainLayout><MedicalRecord /></MainLayout>} />
+        <Route path="/farmasi" element={<MainLayout><Farmasi /></MainLayout>} />
+        <Route path="/apotek" element={<MainLayout><Apotek /></MainLayout>} />
+        <Route path="/lab" element={<MainLayout><Laboratorium /></MainLayout>} />
+        <Route path="/kasir" element={<MainLayout><Kasir /></MainLayout>} />
+        <Route path="/ranap-cppt" element={<MainLayout><RanapCPPT /></MainLayout>} />
+        <Route path="/operasi" element={<MainLayout><Operasi /></MainLayout>} />
+        
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
