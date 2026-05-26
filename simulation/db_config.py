@@ -3,7 +3,7 @@ import os
 
 def connection_config():
     required = ('SIMRS_DB_USER', 'SIMRS_DB_PASSWORD', 'SIMRS_DB_NAME')
-    missing = [name for name in required if not os.getenv(name)]
+    missing = [name for name in required if os.getenv(name) is None]
     if missing:
         raise RuntimeError(f"Set environment variable: {', '.join(missing)}")
 

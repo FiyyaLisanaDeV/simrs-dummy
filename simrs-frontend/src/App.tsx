@@ -11,6 +11,7 @@ import Laboratorium from './pages/Laboratorium';
 import Kasir from './pages/Kasir';
 import RanapCPPT from './pages/RanapCPPT';
 import Operasi from './pages/Operasi';
+import DataMonitoring from './pages/DataMonitoring';
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/monitoring" element={<DataMonitoring />} />
         <Route path="/registration" element={<Registration />} />
         <Route path="/queues" element={<QueueDisplay />} />
         <Route path="/beds" element={<BedManagement />} />
