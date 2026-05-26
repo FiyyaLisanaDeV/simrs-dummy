@@ -129,6 +129,7 @@ NestJS/Prisma sebelum dapat dijadikan quality gate.
 
 | Dokumen | Isi |
 | --- | --- |
+| [Build Summary](docs/Build_Summary.md) | arsitektur, modul, alur, konfigurasi, dan status build rinci |
 | [Current State](docs/CURRENT_STATE.md) | status implementasi dan batasan aktual |
 | [Decision Log](docs/DECISION_LOG.md) | keputusan teknis yang berlaku |
 | [Risk Register](docs/RISK_REGISTER.md) | risiko dan mitigasi |
