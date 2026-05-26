@@ -1,7 +1,6 @@
 # Local hidden workspace metadata and credentials
 /.*/
 docs/archive_legacy_docs/
-docs/last_log.md
 simrs-backend/prisma/schema-introspect.prisma
 **/.git/
 
